@@ -1,19 +1,29 @@
 import TerserPlugin from "terser-webpack-plugin";
-import { Configuration, BannerPlugin } from "webpack";
+import webpack from "webpack";
 import { generateHeader } from "../plugins/userscript.plugin";
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const InsertContentPlugin = require('../plugins/insertCss.plugin');
 
-const config: Configuration = {
+const config: any = {
     entry: "./src/index.ts",
     target: "web",
     resolve: {
-        extensions: [".ts", ".js"],
+        extensions: [".ts", ".js", ".tsx"],
     },
     module: {
         rules: [
             {
-                test: /\.m?ts$/,
+                test: /\.m?tsx?$/,
                 use: "ts-loader",
                 exclude: /node_modules/,
+            },
+            {
+                test: /\.html$/i,
+                loader: "html-loader",
+            },
+            {
+                test: /\.css$/i,
+                use: [MiniCssExtractPlugin.loader, "css-loader"],
             },
         ],
     },
@@ -24,7 +34,6 @@ const config: Configuration = {
     optimization: {
         minimize: false,
         minimizer: [new TerserPlugin({
-            // minify: TerserPlugin.swcMinify,
             terserOptions: {
                 format: {
                     comments: false,
@@ -36,10 +45,16 @@ const config: Configuration = {
         })],
     },
     plugins: [
-        new BannerPlugin({
+        new webpack.BannerPlugin({
             banner: generateHeader,
             raw: true,
-        })
+            test:/\.js$/i
+        }),
+        new MiniCssExtractPlugin({
+            filename: 'style.css'
+        }),
+        // new InsertContentPlugin(path.resolve(__dirname,'..','userscripts/style.css'), '// $$#css#$$')
+        new InsertContentPlugin('// $$#css#$$')
     ]
 };
 

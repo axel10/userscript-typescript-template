@@ -1,6 +1,5 @@
 import { WebpackPluginInstance, Compiler } from "webpack";
 import { format, getSupportInfo } from "prettier";
-import path from "path";
 import fs from "fs/promises";
 
 const DEFAULT_EXTENSIONS = getSupportInfo()
